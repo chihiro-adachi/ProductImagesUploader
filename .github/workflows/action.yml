@@ -1,0 +1,38 @@
+name: CI/CD for EC-CUBE
+on:
+
+  release:
+    types: [ published ]
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Checkout
+      if: github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'prereleased' )
+      uses: actions/checkout@master
+    - name: Packaging
+      if: github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'prereleased' )
+      working-directory: ../
+      env:
+        TAG_NAME: ${{ github.event.release.tag_name }}
+        REPOSITORY_NAME: ${{ github.event.repository.name }}
+      run: |
+        rm -rf $GITHUB_WORKSPACE/.github
+        find $GITHUB_WORKSPACE -name "dummy" -print0 | xargs -0 rm -rf
+        find $GITHUB_WORKSPACE -name ".git*" -and ! -name ".gitkeep" -print0 | xargs -0 rm -rf
+        find $GITHUB_WORKSPACE -name ".git*" -type d -print0 | xargs -0 rm -rf
+        echo "set permissions..."
+        chmod -R o+w $GITHUB_WORKSPACE
+        echo "complession files..."
+        cd $GITHUB_WORKSPACE
+        tar cvzf ../ProductImagesUploader-${{ github.event.release.tag_name }}.tar.gz ./*
+    - name: Upload binaries to release of TGZ
+      if: github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'prereleased' )
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ runner.workspace }}/ProductImagesUploader-${{ github.event.release.tag_name }}.tar.gz
+        asset_name: eccube-${{ github.event.release.tag_name }}.tar.gz
+        tag: ${{ github.ref }}
+        overwrite: true
