@@ -1,10 +1,10 @@
 {
-  "name": "ec-cube/ProductImagesUploader",
-  "version": "1.0.0",
+  "name": "ec-cube/productimagesuploader",
+  "version": "4.1.0",
   "description": "商品画像一括アップロードプラグイン",
   "type": "eccube-plugin",
   "require": {
-    "ec-cube/plugin-installer": "~0.0.7"
+    "ec-cube/plugin-installer": "~0.0.7 || ^2.0"
   },
   "extra": {
     "code": "ProductImagesUploader"
